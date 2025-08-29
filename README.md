@@ -39,12 +39,9 @@ The workflow uses **n8n** as the orchestration tool, combining multiple data sou
 
 ## Getting Started
 
-### 1. Clone this repo
+### 1. Download the workflow JSON
 
-```bash
-git clone <your-repo-url>
-cd market-intel-digest
-```
+Download the provided JSON file from this repository
 
 ### 2. Import workflow into n8n
 
