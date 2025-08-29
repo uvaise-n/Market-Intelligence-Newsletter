@@ -1,0 +1,374 @@
+{
+  "name": "automated newsletter generic",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        352,
+        336
+      ],
+      "id": "3c269565-8a0d-48b7-9e5d-04aacac3ba35",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create this week’s market intelligence newsletter using the provided inputs.\n\nInputs:\n1. Competitor/Peer Tweets:\n{{ $json.tweets }}\n2. Market Research Summary:\n{{ $json.summary }}\n\nSample Output format (adapt to available data):\n\n# Weekly Market Intelligence Newsletter\n\n## Top 5 Moves\n- [bullet with source]\n- ...\n\n## Product & Pricing Changes\n- ...\n\n## Hiring & Leadership\n- ...\n\n## Marketing & GTM\n- ...\n\n## Social Highlights\n- [Include notable posts, quote briefly, add link if available]\n\n## What to Watch Next Week\n- [forward-looking insights]\n\nRules:\n- Each bullet: 1-sentence summary + 1-sentence insight (why it matters to {{COMPANY_NAME}}/our market).\n- Cite sources inline as [Twitter:@handle] or [DomainName].\n- Keep total output under 400 words.\n",
+        "options": {
+          "systemMessage": "You are an experienced market intelligence analyst and newsletter editor.\nYour job is to combine multiple content streams into a single, concise, exec-ready weekly newsletter.\nAlways:\n- Use only the information provided (tweets + research summary).\n- Be neutral, fact-based, and actionable.\n- Avoid duplication across sections.\n- Keep formatting clean: section headers + bullet points.\n- Tone: crisp, professional, easy to skim.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        320
+      ],
+      "id": "8ca64e08-193d-4624-bc1a-c42c2080b679",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        544
+      ],
+      "id": "82dde807-7235-40d5-9540-b52317e433c1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PPyMv4sLQRrhvtop",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "{{RECIPIENT_EMAIL}}",
+        "subject": "Week of {{WEEK_RANGE}} - {{COMPANY_NAME}} Market Intelligence Newsletter",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2304,
+        320
+      ],
+      "id": "8051bf13-b3bf-4769-8af2-ca22b672aede",
+      "name": "Send a message",
+      "webhookId": "5f25c0db-7dfb-4c58-b7d7-43303c1b5efa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TsUIoFhgb4th3Uwk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        320
+      ],
+      "id": "28ef8886-a9d5-4cc7-ade8-c034e123b6be",
+      "name": "Merge",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "O4-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a sharp, concise market intelligence analyst.\nAlways:\n- Use only verified sources from the web search results provided to you.\n- Be neutral, fact-based, and exec-ready.\n- Structure responses cleanly into sections.\n- Keep output under ~200 words.\n- Cite sources inline in brackets by domain or title (e.g. [Reuters]).\n",
+              "role": "system"
+            },
+            {
+              "content": "=Research recent developments (last ~7 days) around \"{{COMPANY_NAME}}\" and the broader \"{{PRIMARY_SECTOR}}\" sector.\n\nCover:\n1) Key company moves — funding, product updates, partnerships.\n2) Sector-level trends and notable peer activity.\n3) Market implications for growth, opportunity, or risk.\n\nOutput structure:\n1. Summary — 3–5 concise bullet points of the most important developments.\n2. Context — 2–3 sentences describing sector-level trends.\n3. Implications — 2–3 sentences on what these developments mean strategically for {{COMPANY_NAME}}.\n4. You can skip news about {{COMPANY_NAME}} itself if the audience is internal and already aware.\n\nBegin."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        832,
+        496
+      ],
+      "id": "4c181c8f-5601-4529-bd34-96fe7fefc3e2",
+      "name": "Market Research AI",
+      "credentials": {
+        "openAiApi": {
+          "id": "PPyMv4sLQRrhvtop",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n## Intelligence sources\n\n\n\n\n\n\n\n\n\n\n\n### Scrape twitter posts from competitors/peers in the past week\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n### Tightly prompted AI that picks market developments and similar product developments\n\n\n\n\n\n\n\n\n\n### Other sources that can be added\n- Product Release Notes (new features and fixes)\n- Company Blogs (messaging and content strategy)\n- User reviews from Google, Capterra, etc.\n- Social growth and strategy for LinkedIn, Twitter, etc.\n- Industry investments, funding & growth via Crunchbase or similar\n- Other RSS feeds\n",
+        "height": 912,
+        "width": 624,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "a7c77817-003a-49ab-8e29-44265f32b47f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "offset": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        880,
+        208
+      ],
+      "id": "6e4676f4-6062-4f33-8035-14c1e2c21069",
+      "name": "Get dataset items",
+      "credentials": {
+        "apifyApi": {
+          "id": "ZOZ5EE5yGHxui0of",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const byAuthor = {};\nfor (const { json } of $input.all()) {\n  const { name, postText } = json;\n  if (!byAuthor[name]) byAuthor[name] = [];\n  byAuthor[name].push(postText);\n}\nreturn [{ json: { byAuthor } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        208
+      ],
+      "id": "2f6c7f2b-d1c2-42da-80cb-a66f3a678d20",
+      "name": "Combine Tweets"
+    },
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "https://console.apify.com/actors/Fo9GoU5wC270BgcBr/input",
+          "mode": "url"
+        },
+        "customBody": "{\n  \"profileUrls\": [\n    \"https://x.com/{{COMPETITOR_1}}\",\n    \"https://x.com/{{COMPETITOR_2}}\",\n    \"https://x.com/{{COMPETITOR_3}}\",\n    \"https://x.com/{{COMPETITOR_4}}\",\n    \"https://x.com/{{COMPETITOR_5}}\"\n  ],\n  \"timeWindow\": 14,\n  \"resultsLimit\": 30\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        704,
+        208
+      ],
+      "id": "f1c1eecb-fcc7-4395-9e91-f0edb38a6552",
+      "name": "Get Posts",
+      "alwaysOutputData": false,
+      "credentials": {
+        "apifyApi": {
+          "id": "ZOZ5EE5yGHxui0of",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node (n8n)\n// Input: two items\n// Output: single item with { tweets: [...], summary: \"...\", llmMessage: {...} }\n\nconst inputs = $input.all();\nlet tweets = [];\nlet summary = '';\nlet llmMessage = null;\n\nfor (const { json } of inputs) {\n  if (json?.byAuthor?.tweets && Array.isArray(json.byAuthor.tweets)) {\n    tweets = json.byAuthor.tweets;\n  } else if (Array.isArray(json?.tweets)) {\n    tweets = json.tweets;\n  }\n  if (json?.message?.content) {\n    llmMessage = json.message;\n    summary = json.message.content;\n  } else if (typeof json?.content === 'string') {\n    summary = json.content;\n  }\n}\n\nconst seen = new Set();\ntweets = tweets.map(t => (typeof t === 'string' ? t.trim() : t))\n  .filter(t => t && !seen.has(t) && seen.add(t));\n\nreturn [{ json: { tweets, summary, llmMessage, tweetCount: tweets.length } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        320
+      ],
+      "id": "1a2c8b92-7375-4805-81f0-b416a73c4962",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node (n8n)\n// Reads the LLM content from $input.first().json.output\n// Outputs: { subject, html, text }\n\nfunction escapeHtml(s) {\n  return s.replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\n}\n\nfunction mdToHtml(md) {\n  const lines = md.split(/\\r?\\n/);\n  let html = '';\n  let inList = false;\n  const closeList = () => { if (inList) { html += '</ul>'; inList = false; } };\n  for (const raw of lines) {\n    const line = raw.trimEnd();\n    if (/^#{1}\\s+/.test(line)) { closeList(); html += `<h1>${escapeHtml(line.replace(/^#\\s+/, ''))}</h1>`; continue; }\n    if (/^#{2}\\s+/.test(line)) { closeList(); html += `<h2>${escapeHtml(line.replace(/^##\\s+/, ''))}</h2>`; continue; }\n    if (/^#{3}\\s+/.test(line)) { closeList(); html += `<h3>${escapeHtml(line.replace(/^###\\s+/, ''))}</h3>`; continue; }\n    if (/^\\s*-\\s+/.test(line)) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${escapeHtml(line.replace(/^\\s*-\\s+/, ''))}</li>`; continue; }\n    if (line.trim() === '') { closeList(); continue; }\n    closeList();\n    html += `<p>${escapeHtml(line)}</p>`;\n  }\n  closeList();\n  return `<!doctype html><html><body style=\"margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;line-height:1.55;color:#111;\">${html}</body></html>`;\n}\n\nfunction mdToText(md) {\n  return md.replace(/^#{1,6}\\s+/gm, '')\n    .replace(/^\\s*-\\s+/gm, '• ')\n    .trim();\n}\n\nconst mdRaw = $input.first()?.json?.output;\nconst md = (typeof mdRaw === 'string' ? mdRaw : '').trim();\n\nif (!md) {\n  return [{ json: { subject: 'Weekly Market Intelligence Newsletter', html: '<!doctype html><html><body style=\"margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;line-height:1.55;color:#111;\">No content found in LLM output.</body></html>', text: 'No content found in LLM output.' } }];\n}\n\nconst m = md.match(/^#\\s+(.+)$/m);\nconst subject = m ? m[1].trim() : 'Weekly Market Intelligence Newsletter';\n\nreturn [{ json: { subject, html: mdToHtml(md), text: mdToText(md) } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        320
+      ],
+      "id": "2d5761cb-76f8-4dbc-957c-758aa7870a49",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "content": "# Automated Weekly Market Intelligence Newsletter for {{COMPANY_NAME}}",
+        "height": 80,
+        "width": 1392,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "39c786ca-9aaa-40d9-99fe-03d7a47bd41b",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Market Research AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market Research AI": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get dataset items": {
+      "main": [
+        [
+          {
+            "node": "Combine Tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Posts": {
+      "main": [
+        [
+          {
+            "node": "Get dataset items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Tweets": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7b99290-60a2-4684-b56e-50a4857c69d6",
+  "meta": {
+    "instanceId": "2292b0d2f8e17f5bc3ab2036ce65361701fd9379cb982cc04b5fb30284381aca"
+  },
+  "id": "87QVsx8vl44SxOS2",
+  "tags": []
+}
