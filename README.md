@@ -1,4 +1,3 @@
-# Market-Intelligence-Newsletter
 # Automated Market Intelligence Digest
 
 This project automates the creation and distribution of a weekly market intelligence newsletter. It is designed to help product and strategy teams stay updated on competitor moves, industry shifts, and domain trends without obsessing over endless scrolling and manual collection.
